@@ -1,8 +1,10 @@
+######## packages #####
 getwd()
 library(dplyr)
 library(tidyr)
 library(writexl)
 
+##### Data Import #####
 # Create a data frame with the provided data
 data <- data.frame(
   Factor = c("ppi_psh_75", "ppi_wheat_75", "ppi_poly_80", "ppi_ wheat_80", "ppi_oats_80", "ppi_oats_82.5", "ppi_wheat_82.5", "ppi_poly_82.5", "ppi_oats_85", "ppi_wheat_85", "ppi_poly_85", "ppi_psh_85"),
@@ -14,6 +16,7 @@ data <- data.frame(
   CV3 = c(1601.9, NA, 45.801, 65.954, 46.53, 14.13, 23.238, NA, 2.43, 2.5917, 1.6632, 402.42)
 )
 
+###### Data Processing #######
 # Reshape the data from wide to long format
 data_long <- data %>%
   pivot_longer(cols = -Factor, names_to = "Type", values_to = "Observation")
@@ -36,8 +39,21 @@ SPI.PPI_CV$Observation <- as.numeric(SPI.PPI_CV$Observation)
 
 
 ###### One way ANOVA ######
-kruskal.test(Factor~ Observation, data = SPI.PPI_FL)
-kruskal.test(Factor~ Observation, data = SPI.PPI_CV)
+FL <- kruskal.test(Factor ~ Observation, data = SPI.PPI_FL)
+CV <- kruskal.test(Factor ~ Observation, data = SPI.PPI_CV)
 
+# Interpretation
+Result <- function(test_result) {
+  if (test_result$p.value > 0.05) {
+    cat("Based on Kruskal-Wallis test, there is no significant difference (p =", test_result$p.value,").\n")
+  } else {
+    cat("Based on Kruskal-Wallis test, there is a significant difference (p =", test_result$p.value,").\n")
+    # Add alternative interpretation if needed
+  }
+}
 
+cat("For SPI.PPI_FL:\n")
+Result(FL)
 
+cat("\nFor SPI.PPI_CV:\n")
+Result(CV)
